@@ -3,31 +3,40 @@ import Modal from "./Modal";
 
 function PostApi() {
 
-    const [isPending, setIsPending] = useState(false)
-    const [appVersion, setAppVersion] = useState('');
+    const [isPending, setIsPending] = useState(false);
     const [show, setShow] = useState(false);
+    const [response, setResponse] = useState({
+        data: '',
+        type: 'success'
+    });
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsPending(true);
 
-        const newRecord = {
+        let newRecord = {
             app_version: "1.2.3",
         }
+        try {
+            await fetch("https://dev.api.globetrott.app/api/check-app-version/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(newRecord)
+            })
 
-        let response = await fetch("https://dev.api.globetrott.app/api/check-app-version/", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(newRecord)
-        }).catch(err => {
-            console.log(err.response.data);
-        });
-        console.log('New record added', newRecord);
-        setIsPending(false);
-        if (response.ok) {
+            console.log('New record added', newRecord);
+            setResponse({ data: 'success', type: 'success' });
             setIsPending(false);
+            showModal();
+        }
+        catch (error) {
+            console.log(error);
+            setIsPending(false);
+            setResponse({ 
+                data: 'Ups... Something went wrong', 
+                type: 'error' });
             showModal();
         }
     }
@@ -43,19 +52,18 @@ function PostApi() {
     return (
         <section>
             <form onSubmit={handleSubmit}>
-                <label htmlFor="app_version">App version</label>
+                {/* <label htmlFor="app_version">App version</label>
                 <input type="text"
                     id="app_version"
-                    value={appVersion}
-                    onChange={(e) => setAppVersion(e.target.value)}
                     placeholder="App version..."
-                    required />
+                    required /> */}
                 {!isPending && <button id="btn-post">Post api</button>}
                 {isPending && <button id="btn-post" disabled>Posted...</button>}
             </form>
-            <Modal show={show} handleClose={hideModal}>
-                <p>Modal</p>
-            </Modal>
+            <Modal show={show}
+                message={response.data}
+                modalType={response.type}
+                handleClose={hideModal} />
         </section>
     );
 }

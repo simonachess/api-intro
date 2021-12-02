@@ -5,8 +5,8 @@ import PostApi from './components/PostApi';
 function App() {
   return (
     <div className="App">
-      <GetApi></GetApi>
-      <PostApi></PostApi>
+      <GetApi />
+      <PostApi />
     </div>
   );
 }
